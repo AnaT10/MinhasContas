@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ContaFácil - Gestão Inteligente</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --bg-body: #f4f7fe;
+            --card-bg: #ffffff;
+            --text-main: #2b3674;
+            --text-muted: #a3aed0;
+            --sidebar-bg: #ffffff;
+            --radius: 20px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: -280px;
+            background: var(--sidebar-bg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1100;
+            padding: 2rem 1.5rem;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.03);
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(4px);
+            display: none; z-index: 1090;
+        }
+        .sidebar-overlay.active { display: block; }
+
+        .sidebar .nav-link {
+            display: flex; align-items: center;
+            padding: 12px 18px; color: var(--text-muted);
+            border-radius: 12px; margin-bottom: 8px;
+            font-weight: 600; transition: all 0.3s;
+            text-decoration: none; cursor: pointer;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: var(--primary-color); color: #fff;
+        }
+
+        .main-content { padding: 2rem; transition: margin-left 0.4s; }
+        .card {
+            background: var(--card-bg); border: none;
+            border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            padding: 1.5rem; margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem; font-weight: 700;
+            margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::before {
+            content: ''; width: 4px; height: 20px;
+            background: var(--primary-color); border-radius: 10px;
+        }
+
+        .form-control, .form-select {
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 12px; padding: 12px 16px;
+        }
+
+        .summary-card {
+            border-radius: var(--radius); padding: 24px;
+            color: #fff; position: relative; overflow: hidden; height: 100%;
+        }
+        .summary-positive { background: linear-gradient(135deg, #05cd99 0%, #00b386 100%); }
+        .summary-negative { background: linear-gradient(135deg, #ee5d50 0%, #e31a1a 100%); }
+        .summary-neutral { background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); }
+
+        .menu-toggle {
+            background: #fff; border: none; width: 45px; height: 45px;
+            border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .list-group-item {
+            background: #fcfdfe; border: 1px solid #f1f5f9;
+            border-radius: 16px !important; margin-bottom: 12px; padding: 16px;
+        }
+
+        .btn-pdf {
+            background-color: #ff4d4d; color: white; border: none;
+            border-radius: 12px; padding: 10px 20px; font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="sidebar">
+        <div class="d-flex align-items-center mb-5">
+            <div class="bg-primary text-white rounded-3 p-2 me-3">
+                <i class="bi bi-wallet2 h4 mb-0"></i>
+            </div>
+            <h3 class="fw-bold mb-0">ContaFácil</h3>
+        </div>
+        
+        <nav>
+            <div onclick="switchTab('dashboard', this)" class="nav-link active">
+                <i class="bi bi-grid-fill me-2"></i> Dashboard
+            </div>
+            <div onclick="switchTab('relatorios', this)" class="nav-link">
+                <i class="bi bi-pie-chart-fill me-2"></i> Relatórios
+            </div>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list h4 mb-0"></i>
+            </button>
+            <div class="month-navigation bg-white px-3 py-2 rounded-pill shadow-sm d-flex align-items-center">
+                <button class="btn btn-sm btn-link text-decoration-none" onclick="changeFilterMonth(-1)"><i class="bi bi-chevron-left"></i></button>
+                <span id="currentMonthLabel" class="mx-2 fw-bold small text-uppercase" style="min-width: 120px; text-align: center;"></span>
+                <button class="btn btn-sm btn-link text-decoration-none" onclick="changeFilterMonth(1)"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4" id="resumoGeral"></div>
+
+        <!-- SEÇÃO: DASHBOARD -->
+        <div id="dashboard" class="content-section">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <h4 class="section-title">Novo Lançamento</h4>
+                        <form id="formAdicionarConta">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">Tipo</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="tipo" id="tipoReceita" value="Receita" onchange="populateCategories()" checked>
+                                    <label class="btn btn-outline-success" for="tipoReceita">Receita</label>
+
+                                    <input type="radio" class="btn-check" name="tipo" id="tipoDespesa" value="Despesa" onchange="populateCategories()">
+                                    <label class="btn btn-outline-danger" for="tipoDespesa">Despesa</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">Categoria</label>
+                                <select id="categoria" class="form-select" onchange="populateSubCategories()" required></select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">Subcategoria</label>
+                                <select id="subCategoria" class="form-select" required></select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">Valor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">R$</span>
+                                    <input type="text" id="valor" class="form-control border-start-0 ps-0" placeholder="0,00" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small text-muted fw-bold">Pagamento</label>
+                                <select id="pagamento" class="form-select">
+                                    <option value="Pix">Pix</option>
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="Débito">Débito</option>
+                                    <option value="Crédito">Crédito</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" id="btnRegistrar">Registrar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card h-100">
+                        <h4 class="section-title">Atividades Recentes</h4>
+                        <div id="listaContas" class="list-group list-group-flush"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: RELATÓRIOS -->
+        <div id="relatorios" class="content-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="section-title mb-0">Análise de Dados</h4>
+                <button class="btn btn-pdf" onclick="exportarParaPDF()">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF Completo
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card"><canvas id="chartCategorias" style="height:300px;"></canvas></div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card"><canvas id="chartComparativo" style="height:300px;"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estrutura de Categorias Expandida (Persistente)
+        const CATEGORIES = {
+            Receita: { 
+                "Trabalho": ["Salário", "Freelance", "Bônus"], 
+                "Investimentos": ["Dividendos", "Rendimentos"], 
+                "Outros": ["Vendas", "Presentes"] 
+            },
+            Despesa: { 
+                "Fatura": ["Nubank", "Banco do Brasil", "Inter", "Itaú", "Bradesco", "Santander", "Outro Banco"],
+                "Internet": ["Móvel", "Residencial"],
+                "Moradia": ["Aluguel", "Água", "Luz", "Condomínio"],
+                "Supermercado": ["Compras do Mês", "Hortifruti", "Padaria"],
+                "Saúde": ["Plano de Saúde", "Farmácia", "Consultas"],
+                "Outros": ["Doações", "Imprevistos", "Diversos"]
+            }
+        };
+
+        // Carrega os dados do LocalStorage ou inicializa um array vazio
+        let contas = [];
+        try {
+            const savedData = localStorage.getItem('contas_v2');
+            contas = savedData ? JSON.parse(savedData) : [];
+        } catch (e) {
+            console.error("Erro ao carregar dados do LocalStorage", e);
+            contas = [];
+        }
+
+        // Esta data controla qual mês o usuário está visualizando
+        let currentFilterDate = new Date();
+        let chartCatInstance, chartCompInstance;
+
+        // Ao carregar a página, executa a renderização
+        window.onload = () => {
+            populateCategories();
+            initFormatters();
+            renderAll();
+        };
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+            if(tabId === 'relatorios') setTimeout(initCharts, 100);
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function populateCategories() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const catSel = document.getElementById('categoria');
+            if (!catSel) return;
+            catSel.innerHTML = '';
+            Object.keys(CATEGORIES[tipo]).forEach(cat => catSel.add(new Option(cat, cat)));
+            populateSubCategories();
+        }
+
+        function populateSubCategories() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const cat = document.getElementById('categoria').value;
+            const subSel = document.getElementById('subCategoria');
+            if (!subSel) return;
+            subSel.innerHTML = '';
+            if(CATEGORIES[tipo][cat]) {
+                CATEGORIES[tipo][cat].forEach(sub => subSel.add(new Option(sub, sub)));
+            }
+        }
+
+        function initFormatters() {
+            const vInput = document.getElementById('valor');
+            if (!vInput) return;
+            vInput.oninput = (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                v = (v / 100).toFixed(2).replace(".", ",");
+                v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+                e.target.value = v;
+            };
+        }
+
+        // Função centralizada para salvar dados
+        function saveData() {
+            localStorage.setItem('contas_v2', JSON.stringify(contas));
+        }
+
+        // Função para atualizar toda a interface
+        function renderAll() {
+            const label = currentFilterDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+            const labelEl = document.getElementById('currentMonthLabel');
+            if (labelEl) labelEl.innerText = label;
+            
+            const mes = currentFilterDate.getMonth();
+            const ano = currentFilterDate.getFullYear();
+            
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === mes && d.getFullYear() === ano;
+            });
+            
+            renderResumo(filtered);
+            renderLista(filtered);
+            
+            // Se estiver na aba de relatórios, atualiza os gráficos
+            const relSec = document.getElementById('relatorios');
+            if(relSec && relSec.style.display !== 'none') {
+                initCharts();
+            }
+        }
+
+        document.getElementById('formAdicionarConta').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const vInput = document.getElementById('valor');
+            const catInput = document.getElementById('categoria');
+            const subCatInput = document.getElementById('subCategoria');
+            const pagInput = document.getElementById('pagamento');
+            
+            const valStr = vInput.value;
+            const valNum = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+            
+            if (isNaN(valNum) || valNum <= 0) return;
+
+            const tipoAtual = document.querySelector('input[name="tipo"]:checked').value;
+
+            // CORREÇÃO: Usamos o mês e ano atualmente selecionados no filtro
+            // mas mantemos o dia atual (ou dia 1 se o dia atual for maior que os dias do mês alvo)
+            const dataDeLancamento = new Date(currentFilterDate.getTime());
+            const hoje = new Date();
+            // Se o mês selecionado for o mês atual, usamos a hora exata. 
+            // Se for outro mês, usamos o dia 1 para garantir que cai no mês certo.
+            if (dataDeLancamento.getMonth() === hoje.getMonth() && dataDeLancamento.getFullYear() === hoje.getFullYear()) {
+                dataDeLancamento.setDate(hoje.getDate());
+            } else {
+                dataDeLancamento.setDate(1);
+            }
+
+            const novaConta = {
+                id: Date.now(),
+                tipo: tipoAtual,
+                categoria: catInput.value,
+                subCategoria: subCatInput.value,
+                pagamento: pagInput.value,
+                valor: valNum,
+                data: dataDeLancamento.toISOString()
+            };
+
+            contas.push(novaConta);
+            saveData();
+            
+            vInput.value = '';
+            renderAll();
+            populateCategories();
+        };
+
+        function renderResumo(filtered) {
+            const rec = filtered.filter(c => c.tipo === 'Receita').reduce((a,b) => a+b.valor,0);
+            const desp = filtered.filter(c => c.tipo === 'Despesa').reduce((a,b) => a+b.valor,0);
+            const saldo = rec - desp;
+            const format = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            const resumoEl = document.getElementById('resumoGeral');
+            if (!resumoEl) return;
+            
+            resumoEl.innerHTML = `
+                <div class="col-md-4"><div class="summary-card summary-neutral"><small>RECEITAS</small><h2>${format(rec)}</h2></div></div>
+                <div class="col-md-4"><div class="summary-card summary-negative"><small>DESPESAS</small><h2>${format(desp)}</h2></div></div>
+                <div class="col-md-4"><div class="summary-card ${saldo >= 0 ? 'summary-positive' : 'summary-negative'}"><small>SALDO</small><h2>${format(saldo)}</h2></div></div>
+            `;
+        }
+
+        function renderLista(filtered) {
+            const list = document.getElementById('listaContas');
+            if (!list) return;
+            
+            list.innerHTML = filtered.length ? '' : '<div class="text-center py-5 text-muted small">Nenhum lançamento registado para este período.</div>';
+            
+            filtered.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-light p-2 me-3">
+                             <i class="bi ${c.tipo === 'Receita' ? 'bi-arrow-up-circle text-success' : 'bi-arrow-down-circle text-danger'}"></i>
+                        </div>
+                        <div>
+                            <b class="d-block">${c.subCategoria}</b>
+                            <small class="text-muted">${c.categoria} • ${c.pagamento} • ${new Date(c.data).toLocaleDateString('pt-BR')}</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <b class="${c.tipo === 'Receita' ? 'text-success' : 'text-danger'}">${toBRL(c.valor)}</b><br>
+                        <button class="btn btn-sm btn-outline-light text-muted p-1 border-0" onclick="deleteConta(${c.id})">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>`;
+                list.appendChild(item);
+            });
+        }
+
+        function deleteConta(id) {
+            contas = contas.filter(c => c.id !== id);
+            saveData();
+            renderAll();
+        }
+
+        function changeFilterMonth(offset) {
+            currentFilterDate.setMonth(currentFilterDate.getMonth() + offset);
+            renderAll();
+        }
+
+        function toBRL(v) { 
+            return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
+        }
+
+        function initCharts() {
+            const mes = currentFilterDate.getMonth();
+            const ano = currentFilterDate.getFullYear();
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === mes && d.getFullYear() === ano;
+            });
+            
+            const despesas = filtered.filter(c => c.tipo === 'Despesa');
+            const catData = {};
+            despesas.forEach(d => catData[d.categoria] = (catData[d.categoria] || 0) + d.valor);
+
+            const catCtx = document.getElementById('chartCategorias');
+            if (catCtx) {
+                if(chartCatInstance) chartCatInstance.destroy();
+                chartCatInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: { 
+                        labels: Object.keys(catData), 
+                        datasets: [{ 
+                            data: Object.values(catData), 
+                            backgroundColor: ['#4361ee','#4cc9f0','#05cd99','#ee5d50','#ff9f43','#7367f0'] 
+                        }] 
+                    },
+                    options: { 
+                        maintainAspectRatio: false,
+                        plugins: { title: { display: true, text: 'Gastos por Categoria' } }
+                    }
+                });
+            }
+
+            const compCtx = document.getElementById('chartComparativo');
+            if (compCtx) {
+                if(chartCompInstance) chartCompInstance.destroy();
+                chartCompInstance = new Chart(compCtx, {
+                    type: 'bar',
+                    data: { labels: ['Mês Atual'], datasets: [
+                        { label: 'Receitas', data: [filtered.filter(c=>c.tipo==='Receita').reduce((a,b)=>a+b.valor,0)], backgroundColor: '#05cd99' },
+                        { label: 'Despesas', data: [filtered.filter(c=>c.tipo==='Despesa').reduce((a,b)=>a+b.valor,0)], backgroundColor: '#ee5d50' }
+                    ]},
+                    options: { maintainAspectRatio: false }
+                });
+            }
+        }
+
+        function exportarParaPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const labelEl = document.getElementById('currentMonthLabel');
+            const mesNome = labelEl ? labelEl.innerText : "Relatorio";
+            
+            doc.setFontSize(20);
+            doc.text("Relatório de Finanças - ContaFácil", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Período analisado: ${mesNome}`, 14, 28);
+
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === currentFilterDate.getMonth() && d.getFullYear() === currentFilterDate.getFullYear();
+            });
+
+            const body = filtered.map(c => [
+                new Date(c.data).toLocaleDateString(), 
+                c.tipo, 
+                c.categoria, 
+                c.subCategoria, 
+                c.pagamento, 
+                toBRL(c.valor)
+            ]);
+            
+            doc.autoTable({
+                startY: 35,
+                head: [['Data', 'Tipo', 'Categoria', 'Subcategoria', 'Forma Pgto', 'Valor']],
+                body: body,
+                theme: 'striped',
+                headStyles: { fillColor: [67, 97, 238] }
+            });
+
+            doc.save(`ContaFacil_${mesNome.replace(/\//g, '-')}.pdf`);
+        }
+    </script>
+</body>
+</html>

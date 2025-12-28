@@ -1,0 +1,244 @@
+/* Paleta de Cores:
+   Fundo: #F5F7FA
+   Texto/Títulos: #2C3E50
+   Bordas/Divisores: #E0E0E0
+   Botão Primário: #3498DB
+   Receita: #2ECC71 (verde)
+   Despesa: #E74C3C (vermelho)
+   Warning: #F39C12 (laranja)
+   Info: #3498DB (azul claro)
+*/
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #F5F7FA; /* Fundo mais suave */
+    margin: 0;
+    padding: 20px;
+    color: #34495e; /* Cor de texto padrão para melhor contraste */
+    line-height: 1.6; /* Melhorar legibilidade do corpo do texto */
+}
+
+h1 {
+    color: #2C3E50; /* Azul marinho escuro para o título principal */
+    margin-bottom: 40px;
+    font-weight: 700;
+    letter-spacing: -0.5px; /* Levemente mais apertado para um visual moderno */
+}
+
+h4.section-title {
+    font-weight: 600;
+    border-bottom: 1px solid #E0E0E0; /* Borda mais clara */
+    padding-bottom: 12px; /* Aumentar um pouco o padding inferior */
+    margin-bottom: 25px; /* Aumentar espaçamento abaixo do título da seção */
+    color: #2C3E50;
+    font-size: 1.4rem; /* Um pouco maior */
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* Sombra mais difusa e leve */
+    border: 1px solid #E0E0E0; /* Adicionar uma borda sutil */
+    padding: 30px; /* Aumentar o padding interno do card */
+    background-color: #FFFFFF; /* Fundo branco para cards */
+}
+
+.conta {
+    border-left: 5px solid;
+    margin-bottom: 20px; /* Mais espaço entre as contas */
+    padding: 20px;
+    border-radius: 8px; /* Bordas arredondadas para as contas */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); /* Sombra mais leve */
+}
+
+.conta.receita {
+    border-color: #2ECC71; /* Verde */
+}
+
+.conta.despesa {
+    border-color: #E74C3C; /* Vermelho */
+}
+
+.conta p {
+    margin-bottom: 8px; /* Espaçamento entre os parágrafos de detalhes da conta */
+    font-size: 0.95rem; /* Levemente menor para detalhes */
+}
+
+.conta p strong {
+    color: #4A637B; /* Cor mais escura para os labels */
+}
+
+
+/* Pequeno ajuste para o espaço entre o texto e o badge/botões */
+.conta .d-flex.justify-content-between.align-items-center > div:first-child {
+    padding-right: 20px; /* Aumenta um pouco o espaço à direita do texto */
+}
+
+.botoes button {
+    margin-right: 10px; /* Mais espaço entre os botões */
+    margin-top: 10px; /* Mais espaço acima dos botões */
+}
+
+.nav-link.active {
+    background-color: #2C3E50 !important; /* Cor mais escura para aba ativa */
+    color: #ffffff !important;
+    border-color: #2C3E50 !important; /* Borda da aba ativa */
+}
+
+.nav-link {
+    color: #2C3E50; /* Cor da aba inativa */
+    font-weight: 500;
+    padding: 12px 20px; /* Aumentar padding para cliques */
+    border-radius: 8px 8px 0 0 !important; /* Arredondar só a parte de cima */
+    margin-right: 5px; /* Espaçamento entre as abas */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #3498DB; /* Azul primário no hover */
+    background-color: #F8F8F8; /* Leve fundo no hover */
+}
+
+button,
+input,
+select {
+    cursor: pointer;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    padding: 12px 15px; /* Aumentar padding de inputs e selects */
+    border: 1px solid #D1D8E0; /* Borda mais clara e definida */
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498DB; /* Borda azul ao focar */
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25); /* Sombra suave ao focar */
+}
+
+.form-label {
+    font-weight: 500; /* Labels um pouco mais fortes */
+    color: #4A637B; /* Cor para labels */
+    margin-bottom: 5px; /* Espaço entre label e input */
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #3498DB; /* Azul primário */
+    border-color: #3498DB;
+}
+
+.btn-primary:hover {
+    background-color: #2980B9; /* Azul mais escuro no hover */
+    border-color: #2980B9;
+    transform: translateY(-1px); /* Pequeno efeito de elevação */
+}
+
+.btn-outline-primary {
+    color: #3498DB;
+    border-color: #3498DB;
+}
+
+.btn-outline-primary:hover {
+    background-color: #3498DB;
+    color: #FFFFFF;
+}
+
+.btn-success {
+    background-color: #2ECC71;
+    border-color: #2ECC71;
+}
+.btn-success:hover {
+    background-color: #27AE60;
+    border-color: #27AE60;
+}
+
+.btn-secondary {
+    background-color: #95A5A6;
+    border-color: #95A5A6;
+}
+.btn-secondary:hover {
+    background-color: #7F8C8D;
+    border-color: #7F8C8D;
+}
+
+.btn-danger {
+    background-color: #E74C3C;
+    border-color: #E74C3C;
+}
+.btn-danger:hover {
+    background-color: #C0392B;
+    border-color: #C0392B;
+}
+
+.tab-content {
+    margin-top: 30px;
+    padding-top: 20px; /* Adicionar padding superior para o conteúdo da aba */
+}
+
+/* Badges de status */
+.badge {
+    padding: 0.6em 0.9em;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8em;
+    text-transform: uppercase;
+}
+
+.badge.text-success {
+    background-color: #D4EDDA;
+    color: #155724;
+}
+
+.badge.text-warning {
+    background-color: #FFF3CD;
+    color: #856404;
+}
+
+.badge.text-info {
+    background-color: #D1ECF1;
+    color: #0C5460;
+}
+
+/* Alertas */
+.alert {
+    padding: 15px 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-color: #bee5eb;
+}
+
+/* ... (seu CSS existente) ... */
+
+.chart-container {
+    position: relative;
+    height: 300px; /* Altura padrão para o gráfico */
+    width: 100%; /* Largura total */
+    margin: 20px auto; /* Centraliza e adiciona margem */
+}
+
+/* ... (o restante do seu CSS) ... */
