@@ -22,6 +22,9 @@
             --text-muted: #a3aed0;
             --sidebar-bg: #ffffff;
             --radius: 20px;
+            --success-color: #05cd99;
+            --danger-color: #ee5d50;
+            --warning-color: #ffb800;
         }
 
         body {
@@ -78,15 +81,12 @@
             background: var(--primary-color); border-radius: 10px;
         }
 
-        .form-control, .form-select {
-            background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 12px; padding: 12px 16px;
-        }
-
         .summary-card {
             border-radius: var(--radius); padding: 24px;
             color: #fff; position: relative; overflow: hidden; height: 100%;
+            transition: transform 0.3s;
         }
+        .summary-card:hover { transform: translateY(-5px); }
         .summary-positive { background: linear-gradient(135deg, #05cd99 0%, #00b386 100%); }
         .summary-negative { background: linear-gradient(135deg, #ee5d50 0%, #e31a1a 100%); }
         .summary-neutral { background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); }
@@ -99,11 +99,25 @@
         .list-group-item {
             background: #fcfdfe; border: 1px solid #f1f5f9;
             border-radius: 16px !important; margin-bottom: 12px; padding: 16px;
+            transition: transform 0.2s;
         }
+        .progress { height: 10px; border-radius: 10px; background-color: #f1f5f9; }
+        
+        /* Home Specific Styles */
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 1rem;
+        }
+        .bg-soft-primary { background: #eef2ff; color: var(--primary-color); }
+        .bg-soft-success { background: #e6fcf5; color: var(--success-color); }
+        .bg-soft-danger { background: #fff5f5; color: var(--danger-color); }
+        .bg-soft-warning { background: #fff9db; color: var(--warning-color); }
 
-        .btn-pdf {
-            background-color: #ff4d4d; color: white; border: none;
-            border-radius: 12px; padding: 10px 20px; font-weight: 600;
+        .somatorio-item {
+            padding: 12px; border-radius: 12px; background: #f8fafc;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -120,8 +134,14 @@
         </div>
         
         <nav>
-            <div onclick="switchTab('dashboard', this)" class="nav-link active">
-                <i class="bi bi-grid-fill me-2"></i> Dashboard
+            <div onclick="switchTab('home', this)" class="nav-link active">
+                <i class="bi bi-house-door-fill me-2"></i> Início
+            </div>
+            <div onclick="switchTab('dashboard', this)" class="nav-link">
+                <i class="bi bi-plus-circle-fill me-2"></i> Lançamentos
+            </div>
+            <div onclick="switchTab('insights', this)" class="nav-link">
+                <i class="bi bi-lightning-charge-fill me-2"></i> Insights e Metas
             </div>
             <div onclick="switchTab('relatorios', this)" class="nav-link">
                 <i class="bi bi-pie-chart-fill me-2"></i> Relatórios
@@ -141,132 +161,155 @@
             </div>
         </div>
 
-        <div class="row g-4 mb-4" id="resumoGeral"></div>
+        <!-- Seção Home -->
+        <div id="home" class="content-section">
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="stat-icon bg-soft-primary mx-auto"><i class="bi bi-cash-stack"></i></div>
+                        <small class="text-muted fw-bold">ECONOMIA</small>
+                        <h3 class="fw-bold mt-1" id="homeEconomia">R$ 0,00</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="stat-icon bg-soft-warning mx-auto"><i class="bi bi-exclamation-triangle"></i></div>
+                        <small class="text-muted fw-bold">ALERTAS</small>
+                        <h3 class="fw-bold mt-1" id="homeAlertas">0</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="stat-icon bg-soft-success mx-auto"><i class="bi bi-graph-up-arrow"></i></div>
+                        <small class="text-muted fw-bold">PROJEÇÃO</small>
+                        <h3 class="fw-bold mt-1" id="homeProjecao">R$ 0,00</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100 text-center">
+                        <div class="stat-icon bg-soft-danger mx-auto"><i class="bi bi-star"></i></div>
+                        <small class="text-muted fw-bold">MAIOR CATEGORIA</small>
+                        <h3 class="fw-bold mt-1 text-truncate" id="homeMaiorCat" style="font-size: 1.1rem;">---</h3>
+                    </div>
+                </div>
+            </div>
 
-        <!-- SEÇÃO: DASHBOARD -->
-        <div id="dashboard" class="content-section">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <h4 class="section-title">Análise de Saúde</h4>
+                        <div class="d-flex align-items-center mb-4 p-3 rounded-4" id="saudeFinanceiraCard" style="background: #f8fafc;">
+                            <div class="me-4 text-center">
+                                <div id="saudeEmoji" style="font-size: 2.5rem;">😐</div>
+                                <div class="fw-bold small" id="saudeStatus">Estável</div>
+                            </div>
+                            <div>
+                                <p class="mb-0 small text-muted" id="saudeFeedback">Carregando análise...</p>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-3 small text-muted">SOMATÓRIOS POR CATEGORIA (DESPESAS)</h5>
+                        <div id="homeSomatoriosList">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <h4 class="section-title">Distribuição</h4>
+                        <canvas id="homeChartCategorias" style="max-height: 200px;"></canvas>
+                        
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span>Receitas Totais</span>
+                                <b class="text-success" id="homeTotalReceitas">R$ 0,00</b>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span>Despesas Totais</span>
+                                <b class="text-danger" id="homeTotalDespesas">R$ 0,00</b>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>Saldo Final</span>
+                                <span id="homeTotalSaldo">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Lançamentos -->
+        <div id="dashboard" class="content-section" style="display: none;">
+            <div class="row g-4 mb-4" id="resumoGeral"></div>
             <div class="row">
                 <div class="col-lg-4">
                     <div class="card">
-                        <h4 class="section-title">Novo Lançamento</h4>
+                        <h4 class="section-title" id="formTitle">Novo Lançamento</h4>
                         <form id="formAdicionarConta">
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">Tipo</label>
-                                <div class="btn-group w-100" role="group">
+                                <div class="btn-group w-100">
                                     <input type="radio" class="btn-check" name="tipo" id="tipoReceita" value="Receita" onchange="populateCategories()" checked>
                                     <label class="btn btn-outline-success" for="tipoReceita">Receita</label>
-
                                     <input type="radio" class="btn-check" name="tipo" id="tipoDespesa" value="Despesa" onchange="populateCategories()">
                                     <label class="btn btn-outline-danger" for="tipoDespesa">Despesa</label>
                                 </div>
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">Categoria</label>
                                 <select id="categoria" class="form-select" onchange="populateSubCategories()" required></select>
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">Subcategoria</label>
                                 <select id="subCategoria" class="form-select" required></select>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small text-muted fw-bold">Valor</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white border-end-0">R$</span>
-                                    <input type="text" id="valor" class="form-control border-start-0 ps-0" placeholder="0,00" required>
-                                </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-white">R$</span>
+                                <input type="text" id="valor" class="form-control" placeholder="0,00" required>
                             </div>
-
-                            <div class="mb-4">
-                                <label class="form-label small text-muted fw-bold">Pagamento</label>
-                                <select id="pagamento" class="form-select">
-                                    <option value="Pix">Pix</option>
-                                    <option value="Dinheiro">Dinheiro</option>
-                                    <option value="Débito">Débito</option>
-                                    <option value="Crédito">Crédito</option>
-                                </select>
-                            </div>
-
                             <button type="submit" class="btn btn-primary w-100" id="btnRegistrar">Registrar</button>
                         </form>
                     </div>
                 </div>
-
                 <div class="col-lg-8">
-                    <div class="card h-100">
-                        <h4 class="section-title">Atividades Recentes</h4>
+                    <div class="card">
+                        <h4 class="section-title">Extrato do Mês</h4>
                         <div id="listaContas" class="list-group list-group-flush"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SEÇÃO: RELATÓRIOS -->
+        <!-- Outras abas (Insights/Relatórios) seguem a mesma lógica -->
+        <div id="insights" class="content-section" style="display: none;">
+             <div class="card"><h4 class="section-title">Metas de Gastos</h4><div id="metasProgressoContainer"></div></div>
+        </div>
         <div id="relatorios" class="content-section" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="section-title mb-0">Análise de Dados</h4>
-                <button class="btn btn-pdf" onclick="exportarParaPDF()">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF Completo
-                </button>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card"><canvas id="chartCategorias" style="height:300px;"></canvas></div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card"><canvas id="chartComparativo" style="height:300px;"></canvas></div>
-                </div>
-            </div>
+             <div class="row"><div class="col-6"><canvas id="chartCategorias"></canvas></div><div class="col-6"><canvas id="chartComparativo"></canvas></div></div>
         </div>
     </div>
 
     <script>
-        // Estrutura de Categorias Expandida (Persistente)
         const CATEGORIES = {
-            Receita: { 
-                "Trabalho": ["Salário", "Freelance", "Bônus"], 
-                "Investimentos": ["Dividendos", "Rendimentos"], 
-                "Outros": ["Vendas", "Presentes"] 
-            },
-            Despesa: { 
-                "Fatura": ["Nubank", "Banco do Brasil", "Inter", "Itaú", "Bradesco", "Santander", "Outro Banco"],
-                "Internet": ["Móvel", "Residencial"],
-                "Moradia": ["Aluguel", "Água", "Luz", "Condomínio"],
-                "Supermercado": ["Compras do Mês", "Hortifruti", "Padaria"],
-                "Saúde": ["Plano de Saúde", "Farmácia", "Consultas"],
-                "Outros": ["Doações", "Imprevistos", "Diversos"]
-            }
+            Receita: { "Trabalho": ["Salário", "Freelance"], "Investimentos": ["Dividendos"], "Outros": ["Venda"] },
+            Despesa: { "Moradia": ["Aluguel", "Luz", "Água"], "Supermercado": ["Mês", "Feira"], "Saúde": ["Farmácia"], "Outros": ["Lazer"] }
         };
-
-        // Carrega os dados do LocalStorage ou inicializa um array vazio
-        let contas = [];
-        try {
-            const savedData = localStorage.getItem('contas_v2');
-            contas = savedData ? JSON.parse(savedData) : [];
-        } catch (e) {
-            console.error("Erro ao carregar dados do LocalStorage", e);
-            contas = [];
-        }
-
-        // Esta data controla qual mês o usuário está visualizando
+        let budgets = { "Moradia": 1500, "Supermercado": 800, "Saúde": 300, "Outros": 500 };
+        let contas = JSON.parse(localStorage.getItem('contas_v3') || '[]');
         let currentFilterDate = new Date();
-        let chartCatInstance, chartCompInstance;
+        let chartHomeCatInstance;
 
-        // Ao carregar a página, executa a renderização
-        window.onload = () => {
-            populateCategories();
-            initFormatters();
-            renderAll();
-        };
+        window.onload = () => { populateCategories(); initFormatters(); renderAll(); };
 
         function switchTab(tabId, el) {
             document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
             document.getElementById(tabId).style.display = 'block';
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
+            if(tabId === 'home') renderHomeTab();
             if(tabId === 'relatorios') setTimeout(initCharts, 100);
+            if(tabId === 'insights') renderInsightsTab();
             if(window.innerWidth < 768) toggleSidebar();
         }
 
@@ -275,251 +318,135 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
+        function renderAll() {
+            const label = currentFilterDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+            document.getElementById('currentMonthLabel').innerText = label;
+            renderHomeTab();
+            renderLista(filterDataByMonth(contas));
+            renderResumo(filterDataByMonth(contas));
+        }
+
+        function filterDataByMonth(data) {
+            const m = currentFilterDate.getMonth(), y = currentFilterDate.getFullYear();
+            return data.filter(c => { const d = new Date(c.data); return d.getMonth() === m && d.getFullYear() === y; });
+        }
+
+        function renderHomeTab() {
+            const filtered = filterDataByMonth(contas);
+            const rec = filtered.filter(c => c.tipo === 'Receita').reduce((a,b) => a+b.valor,0);
+            const desp = filtered.filter(c => c.tipo === 'Despesa').reduce((a,b) => a+b.valor,0);
+            const saldo = rec - desp;
+
+            // Somatórios por Categoria
+            const catTotals = {};
+            filtered.filter(c => c.tipo === 'Despesa').forEach(d => {
+                catTotals[d.categoria] = (catTotals[d.categoria] || 0) + d.valor;
+            });
+
+            const somatoriosContainer = document.getElementById('homeSomatoriosList');
+            somatoriosContainer.innerHTML = '';
+            
+            const sortedCats = Object.entries(catTotals).sort((a,b) => b[1] - a[1]);
+            
+            if (sortedCats.length === 0) {
+                somatoriosContainer.innerHTML = '<p class="text-muted small">Nenhuma despesa registada este mês.</p>';
+            } else {
+                sortedCats.forEach(([cat, val]) => {
+                    const perc = (val / (desp || 1) * 100).toFixed(0);
+                    somatoriosContainer.innerHTML += `
+                        <div class="somatorio-item">
+                            <div>
+                                <span class="fw-bold">${cat}</span>
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">Representa ${perc}% do total</small>
+                            </div>
+                            <b class="text-danger">${toBRL(val)}</b>
+                        </div>
+                    `;
+                });
+            }
+
+            // Cards Superiores
+            document.getElementById('homeEconomia').innerText = toBRL(Math.max(0, saldo));
+            document.getElementById('homeProjecao').innerText = toBRL(saldo);
+            document.getElementById('homeMaiorCat').innerText = sortedCats[0] ? sortedCats[0][0] : "---";
+
+            // Painel Lateral
+            document.getElementById('homeTotalReceitas').innerText = toBRL(rec);
+            document.getElementById('homeTotalDespesas').innerText = toBRL(desp);
+            const saldoEl = document.getElementById('homeTotalSaldo');
+            saldoEl.innerText = toBRL(saldo);
+            saldoEl.className = saldo >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+
+            // Saúde Financeira
+            const emoji = document.getElementById('saudeEmoji'), status = document.getElementById('saudeStatus'), feedback = document.getElementById('saudeFeedback');
+            if (saldo < 0) { emoji.innerText="😟"; status.innerText="Crítico"; feedback.innerText="As suas despesas superaram as receitas. Verifique a sua categoria mais alta."; }
+            else if (rec > 0 && saldo < rec * 0.1) { emoji.innerText="😐"; status.innerText="Atenção"; feedback.innerText="Está a poupar pouco. Tente reduzir gastos em categorias não essenciais."; }
+            else if (rec > 0) { emoji.innerText="😊"; status.innerText="Saudável"; feedback.innerText="Excelente gestão! O seu saldo está positivo e dentro de uma margem segura."; }
+            else { emoji.innerText="😶"; status.innerText="Sem Dados"; feedback.innerText="Inicie os lançamentos do mês para ver a análise."; }
+
+            // Gráfico
+            if(chartHomeCatInstance) chartHomeCatInstance.destroy();
+            chartHomeCatInstance = new Chart(document.getElementById('homeChartCategorias'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(catTotals), datasets: [{ data: Object.values(catTotals), backgroundColor: ['#4361ee','#4cc9f0','#05cd99','#ee5d50','#ffb800'] }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
+            });
+        }
+
+        // Funções Auxiliares
+        function toBRL(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        
         function populateCategories() {
-            const tipo = document.querySelector('input[name="tipo"]:checked').value;
-            const catSel = document.getElementById('categoria');
-            if (!catSel) return;
-            catSel.innerHTML = '';
-            Object.keys(CATEGORIES[tipo]).forEach(cat => catSel.add(new Option(cat, cat)));
+            const t = document.querySelector('input[name="tipo"]:checked').value;
+            const s = document.getElementById('categoria'); s.innerHTML = '';
+            Object.keys(CATEGORIES[t]).forEach(c => s.add(new Option(c, c)));
             populateSubCategories();
         }
 
         function populateSubCategories() {
-            const tipo = document.querySelector('input[name="tipo"]:checked').value;
-            const cat = document.getElementById('categoria').value;
-            const subSel = document.getElementById('subCategoria');
-            if (!subSel) return;
-            subSel.innerHTML = '';
-            if(CATEGORIES[tipo][cat]) {
-                CATEGORIES[tipo][cat].forEach(sub => subSel.add(new Option(sub, sub)));
-            }
+            const t = document.querySelector('input[name="tipo"]:checked').value, c = document.getElementById('categoria').value;
+            const s = document.getElementById('subCategoria'); s.innerHTML = '';
+            CATEGORIES[t][c].forEach(sub => s.add(new Option(sub, sub)));
         }
 
         function initFormatters() {
-            const vInput = document.getElementById('valor');
-            if (!vInput) return;
-            vInput.oninput = (e) => {
+            document.getElementById('valor').oninput = (e) => {
                 let v = e.target.value.replace(/\D/g, '');
                 v = (v / 100).toFixed(2).replace(".", ",");
-                v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-                e.target.value = v;
+                e.target.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
             };
         }
 
-        // Função centralizada para salvar dados
-        function saveData() {
-            localStorage.setItem('contas_v2', JSON.stringify(contas));
-        }
-
-        // Função para atualizar toda a interface
-        function renderAll() {
-            const label = currentFilterDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-            const labelEl = document.getElementById('currentMonthLabel');
-            if (labelEl) labelEl.innerText = label;
-            
-            const mes = currentFilterDate.getMonth();
-            const ano = currentFilterDate.getFullYear();
-            
-            const filtered = contas.filter(c => {
-                const d = new Date(c.data);
-                return d.getMonth() === mes && d.getFullYear() === ano;
-            });
-            
-            renderResumo(filtered);
-            renderLista(filtered);
-            
-            // Se estiver na aba de relatórios, atualiza os gráficos
-            const relSec = document.getElementById('relatorios');
-            if(relSec && relSec.style.display !== 'none') {
-                initCharts();
-            }
-        }
-
-        document.getElementById('formAdicionarConta').onsubmit = function(e) {
+        document.getElementById('formAdicionarConta').onsubmit = (e) => {
             e.preventDefault();
-            
-            const vInput = document.getElementById('valor');
-            const catInput = document.getElementById('categoria');
-            const subCatInput = document.getElementById('subCategoria');
-            const pagInput = document.getElementById('pagamento');
-            
-            const valStr = vInput.value;
-            const valNum = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
-            
-            if (isNaN(valNum) || valNum <= 0) return;
-
-            const tipoAtual = document.querySelector('input[name="tipo"]:checked').value;
-
-            // CORREÇÃO: Usamos o mês e ano atualmente selecionados no filtro
-            // mas mantemos o dia atual (ou dia 1 se o dia atual for maior que os dias do mês alvo)
-            const dataDeLancamento = new Date(currentFilterDate.getTime());
-            const hoje = new Date();
-            // Se o mês selecionado for o mês atual, usamos a hora exata. 
-            // Se for outro mês, usamos o dia 1 para garantir que cai no mês certo.
-            if (dataDeLancamento.getMonth() === hoje.getMonth() && dataDeLancamento.getFullYear() === hoje.getFullYear()) {
-                dataDeLancamento.setDate(hoje.getDate());
-            } else {
-                dataDeLancamento.setDate(1);
-            }
-
-            const novaConta = {
-                id: Date.now(),
-                tipo: tipoAtual,
-                categoria: catInput.value,
-                subCategoria: subCatInput.value,
-                pagamento: pagInput.value,
-                valor: valNum,
-                data: dataDeLancamento.toISOString()
-            };
-
-            contas.push(novaConta);
-            saveData();
-            
-            vInput.value = '';
+            const val = parseFloat(document.getElementById('valor').value.replace(/\./g, '').replace(',', '.'));
+            contas.push({ id: Date.now(), tipo: document.querySelector('input[name="tipo"]:checked').value, 
+            categoria: document.getElementById('categoria').value, subCategoria: document.getElementById('subCategoria').value, 
+            valor: val, data: new Date(currentFilterDate).toISOString() });
+            localStorage.setItem('contas_v3', JSON.stringify(contas));
+            document.getElementById('formAdicionarConta').reset();
             renderAll();
-            populateCategories();
         };
 
-        function renderResumo(filtered) {
-            const rec = filtered.filter(c => c.tipo === 'Receita').reduce((a,b) => a+b.valor,0);
-            const desp = filtered.filter(c => c.tipo === 'Despesa').reduce((a,b) => a+b.valor,0);
-            const saldo = rec - desp;
-            const format = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            const resumoEl = document.getElementById('resumoGeral');
-            if (!resumoEl) return;
-            
-            resumoEl.innerHTML = `
-                <div class="col-md-4"><div class="summary-card summary-neutral"><small>RECEITAS</small><h2>${format(rec)}</h2></div></div>
-                <div class="col-md-4"><div class="summary-card summary-negative"><small>DESPESAS</small><h2>${format(desp)}</h2></div></div>
-                <div class="col-md-4"><div class="summary-card ${saldo >= 0 ? 'summary-positive' : 'summary-negative'}"><small>SALDO</small><h2>${format(saldo)}</h2></div></div>
-            `;
-        }
-
-        function renderLista(filtered) {
-            const list = document.getElementById('listaContas');
-            if (!list) return;
-            
-            list.innerHTML = filtered.length ? '' : '<div class="text-center py-5 text-muted small">Nenhum lançamento registado para este período.</div>';
-            
-            filtered.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(c => {
-                const item = document.createElement('div');
-                item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                item.innerHTML = `
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-light p-2 me-3">
-                             <i class="bi ${c.tipo === 'Receita' ? 'bi-arrow-up-circle text-success' : 'bi-arrow-down-circle text-danger'}"></i>
-                        </div>
-                        <div>
-                            <b class="d-block">${c.subCategoria}</b>
-                            <small class="text-muted">${c.categoria} • ${c.pagamento} • ${new Date(c.data).toLocaleDateString('pt-BR')}</small>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <b class="${c.tipo === 'Receita' ? 'text-success' : 'text-danger'}">${toBRL(c.valor)}</b><br>
-                        <button class="btn btn-sm btn-outline-light text-muted p-1 border-0" onclick="deleteConta(${c.id})">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
-                    </div>`;
-                list.appendChild(item);
+        function renderLista(data) {
+            const l = document.getElementById('listaContas'); l.innerHTML = data.length ? '' : '<p class="text-center py-4">Sem dados.</p>';
+            data.forEach(c => {
+                l.innerHTML += `<div class="list-group-item d-flex justify-content-between">
+                    <div><b>${c.subCategoria}</b><br><small>${c.categoria}</small></div>
+                    <b class="${c.tipo==='Receita'?'text-success':'text-danger'}">${toBRL(c.valor)}</b>
+                </div>`;
             });
         }
 
-        function deleteConta(id) {
-            contas = contas.filter(c => c.id !== id);
-            saveData();
-            renderAll();
+        function renderResumo(f) {
+            const r = f.filter(c=>c.tipo==='Receita').reduce((a,b)=>a+b.valor,0), d = f.filter(c=>c.tipo==='Despesa').reduce((a,b)=>a+b.valor,0);
+            document.getElementById('resumoGeral').innerHTML = `
+                <div class="col-4"><div class="summary-card summary-neutral"><small>RECEITAS</small><h3>${toBRL(r)}</h3></div></div>
+                <div class="col-4"><div class="summary-card summary-negative"><small>DESPESAS</small><h3>${toBRL(d)}</h3></div></div>
+                <div class="col-4"><div class="summary-card ${r-d>=0?'summary-positive':'summary-negative'}"><small>SALDO</small><h3>${toBRL(r-d)}</h3></div></div>`;
         }
 
-        function changeFilterMonth(offset) {
-            currentFilterDate.setMonth(currentFilterDate.getMonth() + offset);
-            renderAll();
-        }
-
-        function toBRL(v) { 
-            return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
-        }
-
-        function initCharts() {
-            const mes = currentFilterDate.getMonth();
-            const ano = currentFilterDate.getFullYear();
-            const filtered = contas.filter(c => {
-                const d = new Date(c.data);
-                return d.getMonth() === mes && d.getFullYear() === ano;
-            });
-            
-            const despesas = filtered.filter(c => c.tipo === 'Despesa');
-            const catData = {};
-            despesas.forEach(d => catData[d.categoria] = (catData[d.categoria] || 0) + d.valor);
-
-            const catCtx = document.getElementById('chartCategorias');
-            if (catCtx) {
-                if(chartCatInstance) chartCatInstance.destroy();
-                chartCatInstance = new Chart(catCtx, {
-                    type: 'doughnut',
-                    data: { 
-                        labels: Object.keys(catData), 
-                        datasets: [{ 
-                            data: Object.values(catData), 
-                            backgroundColor: ['#4361ee','#4cc9f0','#05cd99','#ee5d50','#ff9f43','#7367f0'] 
-                        }] 
-                    },
-                    options: { 
-                        maintainAspectRatio: false,
-                        plugins: { title: { display: true, text: 'Gastos por Categoria' } }
-                    }
-                });
-            }
-
-            const compCtx = document.getElementById('chartComparativo');
-            if (compCtx) {
-                if(chartCompInstance) chartCompInstance.destroy();
-                chartCompInstance = new Chart(compCtx, {
-                    type: 'bar',
-                    data: { labels: ['Mês Atual'], datasets: [
-                        { label: 'Receitas', data: [filtered.filter(c=>c.tipo==='Receita').reduce((a,b)=>a+b.valor,0)], backgroundColor: '#05cd99' },
-                        { label: 'Despesas', data: [filtered.filter(c=>c.tipo==='Despesa').reduce((a,b)=>a+b.valor,0)], backgroundColor: '#ee5d50' }
-                    ]},
-                    options: { maintainAspectRatio: false }
-                });
-            }
-        }
-
-        function exportarParaPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const labelEl = document.getElementById('currentMonthLabel');
-            const mesNome = labelEl ? labelEl.innerText : "Relatorio";
-            
-            doc.setFontSize(20);
-            doc.text("Relatório de Finanças - ContaFácil", 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Período analisado: ${mesNome}`, 14, 28);
-
-            const filtered = contas.filter(c => {
-                const d = new Date(c.data);
-                return d.getMonth() === currentFilterDate.getMonth() && d.getFullYear() === currentFilterDate.getFullYear();
-            });
-
-            const body = filtered.map(c => [
-                new Date(c.data).toLocaleDateString(), 
-                c.tipo, 
-                c.categoria, 
-                c.subCategoria, 
-                c.pagamento, 
-                toBRL(c.valor)
-            ]);
-            
-            doc.autoTable({
-                startY: 35,
-                head: [['Data', 'Tipo', 'Categoria', 'Subcategoria', 'Forma Pgto', 'Valor']],
-                body: body,
-                theme: 'striped',
-                headStyles: { fillColor: [67, 97, 238] }
-            });
-
-            doc.save(`ContaFacil_${mesNome.replace(/\//g, '-')}.pdf`);
-        }
+        function changeFilterMonth(o) { currentFilterDate.setMonth(currentFilterDate.getMonth()+o); renderAll(); }
     </script>
 </body>
 </html>
