@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ContaFácil - Gestão Inteligente</title>
 
+    <!-- Frameworks e Estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
+    <!-- Bibliotecas Externas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -22,33 +24,27 @@
             --text-muted: #a3aed0;
             --sidebar-bg: #ffffff;
             --radius: 20px;
-            --success-color: #05cd99;
-            --danger-color: #ee5d50;
-            --warning-color: #ffb800;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
+            overflow-x: hidden;
         }
 
+        /* Sidebar Customizada */
         .sidebar {
-            height: 100vh;
-            width: 280px;
-            position: fixed;
-            top: 0;
-            left: -280px;
-            background: var(--sidebar-bg);
+            height: 100vh; width: 280px; position: fixed;
+            top: 0; left: -280px; background: var(--sidebar-bg);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1100;
-            padding: 2rem 1.5rem;
+            z-index: 1100; padding: 2rem 1.5rem;
             box-shadow: 10px 0 30px rgba(0,0,0,0.03);
         }
         .sidebar.active { left: 0; }
+        
         .sidebar-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.2); backdrop-filter: blur(4px);
             display: none; z-index: 1090;
         }
@@ -65,7 +61,9 @@
             background: var(--primary-color); color: #fff;
         }
 
+        /* Layout Principal */
         .main-content { padding: 2rem; transition: margin-left 0.4s; }
+        
         .card {
             background: var(--card-bg); border: none;
             border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.04);
@@ -81,12 +79,11 @@
             background: var(--primary-color); border-radius: 10px;
         }
 
+        /* Cards de Resumo */
         .summary-card {
             border-radius: var(--radius); padding: 24px;
             color: #fff; position: relative; overflow: hidden; height: 100%;
-            transition: transform 0.3s;
         }
-        .summary-card:hover { transform: translateY(-5px); }
         .summary-positive { background: linear-gradient(135deg, #05cd99 0%, #00b386 100%); }
         .summary-negative { background: linear-gradient(135deg, #ee5d50 0%, #e31a1a 100%); }
         .summary-neutral { background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); }
@@ -99,32 +96,38 @@
         .list-group-item {
             background: #fcfdfe; border: 1px solid #f1f5f9;
             border-radius: 16px !important; margin-bottom: 12px; padding: 16px;
-            transition: transform 0.2s;
         }
-        .progress { height: 10px; border-radius: 10px; background-color: #f1f5f9; }
-        
-        /* Home Specific Styles */
-        .stat-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 1rem;
-        }
-        .bg-soft-primary { background: #eef2ff; color: var(--primary-color); }
-        .bg-soft-success { background: #e6fcf5; color: var(--success-color); }
-        .bg-soft-danger { background: #fff5f5; color: var(--danger-color); }
-        .bg-soft-warning { background: #fff9db; color: var(--warning-color); }
 
-        .somatorio-item {
-            padding: 12px; border-radius: 12px; background: #f8fafc;
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px;
+        .btn-pdf {
+            background-color: #ff4d4d; color: white; border: none;
+            border-radius: 12px; padding: 10px 20px; font-weight: 600;
         }
+
+        /* Estilos de Análise */
+        .analysis-badge {
+            background: #f4f7fe; border-radius: 10px; padding: 10px 15px;
+            display: flex; flex-direction: column;
+        }
+        .analysis-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        .analysis-value { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+
+        .table-custom { font-size: 0.9rem; }
+        .table-custom thead th { border: none; color: var(--text-muted); font-weight: 600; }
+        .table-custom tbody td { vertical-align: middle; border-color: #f1f5f9; padding: 12px 8px; }
+
+        .loader {
+            width: 20px; height: 20px; border: 3px solid #FFF;
+            border-bottom-color: transparent; border-radius: 50%;
+            display: none; animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 
 <body>
     <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
+    <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <div class="d-flex align-items-center mb-5">
             <div class="bg-primary text-white rounded-3 p-2 me-3">
@@ -134,22 +137,23 @@
         </div>
         
         <nav>
-            <div onclick="switchTab('home', this)" class="nav-link active">
-                <i class="bi bi-house-door-fill me-2"></i> Início
-            </div>
-            <div onclick="switchTab('dashboard', this)" class="nav-link">
-                <i class="bi bi-plus-circle-fill me-2"></i> Lançamentos
-            </div>
-            <div onclick="switchTab('insights', this)" class="nav-link">
-                <i class="bi bi-lightning-charge-fill me-2"></i> Insights e Metas
+            <div onclick="switchTab('dashboard', this)" class="nav-link active">
+                <i class="bi bi-grid-fill me-2"></i> Dashboard
             </div>
             <div onclick="switchTab('relatorios', this)" class="nav-link">
                 <i class="bi bi-pie-chart-fill me-2"></i> Relatórios
             </div>
+            <hr class="text-muted opacity-25">
+            <div class="small text-muted px-3 mb-2" id="userDisplayName">Carregando...</div>
+            <div onclick="location.reload()" class="nav-link text-danger">
+                <i class="bi bi-box-arrow-right me-2"></i> Sair
+            </div>
         </nav>
     </div>
 
+    <!-- Conteúdo Principal -->
     <div class="main-content">
+        <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <button class="menu-toggle" onclick="toggleSidebar()">
                 <i class="bi bi-list h4 mb-0"></i>
@@ -161,95 +165,23 @@
             </div>
         </div>
 
-        <!-- Seção Home -->
-        <div id="home" class="content-section">
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <div class="card h-100 text-center">
-                        <div class="stat-icon bg-soft-primary mx-auto"><i class="bi bi-cash-stack"></i></div>
-                        <small class="text-muted fw-bold">ECONOMIA</small>
-                        <h3 class="fw-bold mt-1" id="homeEconomia">R$ 0,00</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card h-100 text-center">
-                        <div class="stat-icon bg-soft-warning mx-auto"><i class="bi bi-exclamation-triangle"></i></div>
-                        <small class="text-muted fw-bold">ALERTAS</small>
-                        <h3 class="fw-bold mt-1" id="homeAlertas">0</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card h-100 text-center">
-                        <div class="stat-icon bg-soft-success mx-auto"><i class="bi bi-graph-up-arrow"></i></div>
-                        <small class="text-muted fw-bold">PROJEÇÃO</small>
-                        <h3 class="fw-bold mt-1" id="homeProjecao">R$ 0,00</h3>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card h-100 text-center">
-                        <div class="stat-icon bg-soft-danger mx-auto"><i class="bi bi-star"></i></div>
-                        <small class="text-muted fw-bold">MAIOR CATEGORIA</small>
-                        <h3 class="fw-bold mt-1 text-truncate" id="homeMaiorCat" style="font-size: 1.1rem;">---</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <h4 class="section-title">Análise de Saúde</h4>
-                        <div class="d-flex align-items-center mb-4 p-3 rounded-4" id="saudeFinanceiraCard" style="background: #f8fafc;">
-                            <div class="me-4 text-center">
-                                <div id="saudeEmoji" style="font-size: 2.5rem;">😐</div>
-                                <div class="fw-bold small" id="saudeStatus">Estável</div>
-                            </div>
-                            <div>
-                                <p class="mb-0 small text-muted" id="saudeFeedback">Carregando análise...</p>
-                            </div>
-                        </div>
-
-                        <h5 class="fw-bold mb-3 small text-muted">SOMATÓRIOS POR CATEGORIA (DESPESAS)</h5>
-                        <div id="homeSomatoriosList">
-                            <!-- Injetado via JS -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <h4 class="section-title">Distribuição</h4>
-                        <canvas id="homeChartCategorias" style="max-height: 200px;"></canvas>
-                        
-                        <div class="mt-4 pt-3 border-top">
-                            <div class="d-flex justify-content-between mb-2 small">
-                                <span>Receitas Totais</span>
-                                <b class="text-success" id="homeTotalReceitas">R$ 0,00</b>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2 small">
-                                <span>Despesas Totais</span>
-                                <b class="text-danger" id="homeTotalDespesas">R$ 0,00</b>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between fw-bold">
-                                <span>Saldo Final</span>
-                                <span id="homeTotalSaldo">R$ 0,00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Resumo -->
+        <div class="row g-4 mb-4" id="resumoGeral">
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
             </div>
         </div>
 
-        <!-- Seção Lançamentos -->
-        <div id="dashboard" class="content-section" style="display: none;">
-            <div class="row g-4 mb-4" id="resumoGeral"></div>
+        <!-- Seção: Dashboard -->
+        <div id="dashboard" class="content-section">
             <div class="row">
                 <div class="col-lg-4">
-                    <div class="card">
+                    <div class="card" id="cardForm">
                         <h4 class="section-title" id="formTitle">Novo Lançamento</h4>
                         <form id="formAdicionarConta">
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">Tipo</label>
-                                <div class="btn-group w-100">
+                                <div class="btn-group w-100" role="group">
                                     <input type="radio" class="btn-check" name="tipo" id="tipoReceita" value="Receita" onchange="populateCategories()" checked>
                                     <label class="btn btn-outline-success" for="tipoReceita">Receita</label>
                                     <input type="radio" class="btn-check" name="tipo" id="tipoDespesa" value="Despesa" onchange="populateCategories()">
@@ -264,189 +196,433 @@
                                 <label class="form-label small text-muted fw-bold">Subcategoria</label>
                                 <select id="subCategoria" class="form-select" required></select>
                             </div>
-                            <div class="input-group mb-3">
-                                <span class="input-group-text bg-white">R$</span>
-                                <input type="text" id="valor" class="form-control" placeholder="0,00" required>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">Valor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">R$</span>
+                                    <input type="text" id="valor" class="form-control border-start-0 ps-0 valor-mask" placeholder="0,00" required>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" id="btnRegistrar">Registrar</button>
+                            <div class="mb-4">
+                                <label class="form-label small text-muted fw-bold">Pagamento</label>
+                                <select id="pagamento" class="form-select">
+                                    <option value="Pix">Pix</option>
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="Débito">Débito</option>
+                                    <option value="Crédito">Crédito</option>
+                                </select>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" id="btnRegistrar">
+                                    <span id="btnText">Registrar</span>
+                                    <span class="loader" id="btnLoader"></span>
+                                </button>
+                                <button type="button" class="btn btn-light" id="btnCancelarEdicao" style="display: none;" onclick="cancelarEdicao()">Cancelar</button>
+                            </div>
                         </form>
                     </div>
                 </div>
+
                 <div class="col-lg-8">
-                    <div class="card">
-                        <h4 class="section-title">Extrato do Mês</h4>
+                    <div class="card h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="section-title mb-0">Atividades Recentes</h4>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">Filtrar</button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="filterList('Todos')">Todos</a></li>
+                                    <li><a class="dropdown-item text-success" href="#" onclick="filterList('Receita')">Receitas</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="filterList('Despesa')">Despesas</a></li>
+                                </ul>
+                            </div>
+                        </div>
                         <div id="listaContas" class="list-group list-group-flush"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Outras abas (Insights/Relatórios) seguem a mesma lógica -->
-        <div id="insights" class="content-section" style="display: none;">
-             <div class="card"><h4 class="section-title">Metas de Gastos</h4><div id="metasProgressoContainer"></div></div>
-        </div>
+        <!-- Seção: Relatórios -->
         <div id="relatorios" class="content-section" style="display: none;">
-             <div class="row"><div class="col-6"><canvas id="chartCategorias"></canvas></div><div class="col-6"><canvas id="chartComparativo"></canvas></div></div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="section-title mb-0">Análise e Somatórios</h4>
+                <button class="btn btn-pdf" onclick="exportarParaPDF()">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Gerar PDF
+                </button>
+            </div>
+
+            <!-- Análise Rápida -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="analysis-badge">
+                        <span class="analysis-label">Média Diária de Gastos</span>
+                        <span class="analysis-value" id="mediaGastos">R$ 0,00</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="analysis-badge">
+                        <span class="analysis-label">Maior Categoria de Custo</span>
+                        <span class="analysis-value" id="maiorCategoria">-</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="analysis-badge">
+                        <span class="analysis-label">Nº de Lançamentos</span>
+                        <span class="analysis-value" id="totalLancamentos">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <canvas id="chartCategorias" style="height:300px;"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <canvas id="chartComparativo" style="height:300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Somatórios -->
+            <div class="card">
+                <h5 class="fw-bold mb-3">Resumo por Categoria e Subcategoria</h5>
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Subcategoria</th>
+                                <th class="text-end">Total Acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaSomatorios">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'contafacil-default';
+
         const CATEGORIES = {
-            Receita: { "Trabalho": ["Salário", "Freelance"], "Investimentos": ["Dividendos"], "Outros": ["Venda"] },
-            Despesa: { "Moradia": ["Aluguel", "Luz", "Água"], "Supermercado": ["Mês", "Feira"], "Saúde": ["Farmácia"], "Outros": ["Lazer"] }
+            Receita: { 
+                "Trabalho": ["Salário", "Freelance", "Bônus"], 
+                "Investimentos": ["Dividendos", "Rendimentos"], 
+                "Outros": ["Vendas", "Presentes"] 
+            },
+            Despesa: { 
+                "Fatura": ["Nubank", "Banco do Brasil", "Inter", "Itaú", "Bradesco", "Santander", "Outro"],
+                "Internet": ["Móvel", "Residencial"],
+                "Moradia": ["Aluguel", "Água", "Luz", "Condomínio"],
+                "Supermercado": ["Compras", "Hortifruti", "Padaria"],
+                "Saúde": ["Plano", "Farmácia", "Consultas"],
+                "Outros": ["Doações", "Imprevistos", "Diversos"]
+            }
         };
-        let budgets = { "Moradia": 1500, "Supermercado": 800, "Saúde": 300, "Outros": 500 };
-        let contas = JSON.parse(localStorage.getItem('contas_v3') || '[]');
+
+        let currentUser = null;
+        let contas = [];
         let currentFilterDate = new Date();
-        let chartHomeCatInstance;
+        let editingId = null;
+        let listFilter = 'Todos';
+        let chartInstances = { cat: null, comp: null };
 
-        window.onload = () => { populateCategories(); initFormatters(); renderAll(); };
+        const toBRL = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        function switchTab(tabId, el) {
+        // Auth
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                document.getElementById('userDisplayName').innerText = `Usuário: ${user.uid.substring(0, 6)}`;
+                startDataListener(user.uid);
+            }
+        });
+
+        const startDataListener = (userId) => {
+            const colRef = collection(db, 'artifacts', appId, 'users', userId, 'movimentacoes');
+            onSnapshot(colRef, (snapshot) => {
+                contas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAll();
+            });
+        };
+
+        // UI Handlers
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        };
+
+        window.switchTab = (tabId, el) => {
             document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
             document.getElementById(tabId).style.display = 'block';
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            if(tabId === 'home') renderHomeTab();
-            if(tabId === 'relatorios') setTimeout(initCharts, 100);
-            if(tabId === 'insights') renderInsightsTab();
-            if(window.innerWidth < 768) toggleSidebar();
-        }
+            if(tabId === 'relatorios') renderRelatorios();
+            if(window.innerWidth < 768) window.toggleSidebar();
+        };
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
+        window.populateCategories = (selectedCat = null, selectedSub = null) => {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const catSel = document.getElementById('categoria');
+            catSel.innerHTML = '';
+            Object.keys(CATEGORIES[tipo]).forEach(cat => {
+                const opt = new Option(cat, cat);
+                if (cat === selectedCat) opt.selected = true;
+                catSel.add(opt);
+            });
+            window.populateSubCategories(selectedSub);
+        };
 
-        function renderAll() {
+        window.populateSubCategories = (selectedSub = null) => {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const cat = document.getElementById('categoria').value;
+            const subSel = document.getElementById('subCategoria');
+            subSel.innerHTML = '';
+            if(CATEGORIES[tipo][cat]) {
+                CATEGORIES[tipo][cat].forEach(sub => {
+                    const opt = new Option(sub, sub);
+                    if (sub === selectedSub) opt.selected = true;
+                    subSel.add(opt);
+                });
+            }
+        };
+
+        document.querySelectorAll('.valor-mask').forEach(input => {
+            input.oninput = (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                v = (v / 100).toFixed(2).replace(".", ",");
+                v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+                e.target.value = v;
+            };
+        });
+
+        // CRUD
+        document.getElementById('formAdicionarConta').onsubmit = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const btnLoader = document.getElementById('btnLoader');
+            const btnText = document.getElementById('btnText');
+            btnLoader.style.display = 'inline-block';
+            btnText.innerText = editingId ? 'Atualizando...' : 'Registrando...';
+
+            try {
+                const valNum = parseFloat(document.getElementById('valor').value.replace(/\./g, '').replace(',', '.'));
+                const tipo = document.querySelector('input[name="tipo"]:checked').value;
+                const cat = document.getElementById('categoria').value;
+                const sub = document.getElementById('subCategoria').value;
+                const pag = document.getElementById('pagamento').value;
+
+                const payload = {
+                    tipo, categoria: cat, subCategoria: sub, pagamento: pag, valor: valNum,
+                    data: editingId ? contas.find(c => c.id === editingId).data : new Date().toISOString()
+                };
+
+                if (editingId) {
+                    await updateDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'movimentacoes', editingId), payload);
+                    window.cancelarEdicao();
+                } else {
+                    await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'movimentacoes'), payload);
+                    e.target.reset();
+                    window.populateCategories();
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btnLoader.style.display = 'none';
+                btnText.innerText = editingId ? 'Atualizar' : 'Registrar';
+            }
+        };
+
+        window.deleteConta = async (id) => {
+            if (confirm("Excluir lançamento?")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'movimentacoes', id));
+            }
+        };
+
+        window.prepareEdit = (id) => {
+            const c = contas.find(x => x.id === id);
+            editingId = id;
+            document.getElementById('formTitle').innerText = "Editar Lançamento";
+            document.getElementById('btnRegistrar').innerText = "Atualizar";
+            document.getElementById('btnCancelarEdicao').style.display = "block";
+            document.querySelector(`input[name="tipo"][value="${c.tipo}"]`).checked = true;
+            window.populateCategories(c.categoria, c.subCategoria);
+            document.getElementById('valor').value = (c.valor).toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            document.getElementById('pagamento').value = c.pagamento;
+        };
+
+        window.cancelarEdicao = () => {
+            editingId = null;
+            document.getElementById('formTitle').innerText = "Novo Lançamento";
+            document.getElementById('btnRegistrar').innerText = "Registrar";
+            document.getElementById('btnCancelarEdicao').style.display = "none";
+            document.getElementById('formAdicionarConta').reset();
+            window.populateCategories();
+        };
+
+        // Rendering Logic
+        window.renderAll = () => {
             const label = currentFilterDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
             document.getElementById('currentMonthLabel').innerText = label;
-            renderHomeTab();
-            renderLista(filterDataByMonth(contas));
-            renderResumo(filterDataByMonth(contas));
-        }
+            
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === currentFilterDate.getMonth() && d.getFullYear() === currentFilterDate.getFullYear();
+            });
+            
+            renderResumo(filtered);
+            renderLista(filtered);
+            if(document.getElementById('relatorios').style.display !== 'none') renderRelatorios();
+        };
 
-        function filterDataByMonth(data) {
-            const m = currentFilterDate.getMonth(), y = currentFilterDate.getFullYear();
-            return data.filter(c => { const d = new Date(c.data); return d.getMonth() === m && d.getFullYear() === y; });
-        }
-
-        function renderHomeTab() {
-            const filtered = filterDataByMonth(contas);
+        const renderResumo = (filtered) => {
             const rec = filtered.filter(c => c.tipo === 'Receita').reduce((a,b) => a+b.valor,0);
             const desp = filtered.filter(c => c.tipo === 'Despesa').reduce((a,b) => a+b.valor,0);
             const saldo = rec - desp;
+            document.getElementById('resumoGeral').innerHTML = `
+                <div class="col-md-4"><div class="summary-card summary-neutral"><small>RECEITAS</small><h2>${toBRL(rec)}</h2></div></div>
+                <div class="col-md-4"><div class="summary-card summary-negative"><small>DESPESAS</small><h2>${toBRL(desp)}</h2></div></div>
+                <div class="col-md-4"><div class="summary-card ${saldo >= 0 ? 'summary-positive' : 'summary-negative'}"><small>SALDO</small><h2>${toBRL(saldo)}</h2></div></div>
+            `;
+        };
 
-            // Somatórios por Categoria
-            const catTotals = {};
-            filtered.filter(c => c.tipo === 'Despesa').forEach(d => {
-                catTotals[d.categoria] = (catTotals[d.categoria] || 0) + d.valor;
-            });
-
-            const somatoriosContainer = document.getElementById('homeSomatoriosList');
-            somatoriosContainer.innerHTML = '';
-            
-            const sortedCats = Object.entries(catTotals).sort((a,b) => b[1] - a[1]);
-            
-            if (sortedCats.length === 0) {
-                somatoriosContainer.innerHTML = '<p class="text-muted small">Nenhuma despesa registada este mês.</p>';
-            } else {
-                sortedCats.forEach(([cat, val]) => {
-                    const perc = (val / (desp || 1) * 100).toFixed(0);
-                    somatoriosContainer.innerHTML += `
-                        <div class="somatorio-item">
-                            <div>
-                                <span class="fw-bold">${cat}</span>
-                                <small class="text-muted d-block" style="font-size: 0.7rem;">Representa ${perc}% do total</small>
-                            </div>
-                            <b class="text-danger">${toBRL(val)}</b>
+        const renderLista = (filtered) => {
+            const list = document.getElementById('listaContas');
+            let data = (listFilter === 'Todos') ? filtered : filtered.filter(c => c.tipo === listFilter);
+            list.innerHTML = data.length ? '' : '<div class="text-center py-4 text-muted">Nenhum dado.</div>';
+            data.sort((a,b) => new Date(b.data) - new Date(a.data)).forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item d-flex justify-content-between align-items-center mb-2';
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi ${c.tipo === 'Receita' ? 'bi-plus-circle text-success' : 'bi-dash-circle text-danger'} me-3 h5"></i>
+                        <div>
+                            <b class="d-block">${c.subCategoria}</b>
+                            <small class="text-muted">${c.categoria} | ${new Date(c.data).toLocaleDateString()}</small>
                         </div>
-                    `;
-                });
-            }
-
-            // Cards Superiores
-            document.getElementById('homeEconomia').innerText = toBRL(Math.max(0, saldo));
-            document.getElementById('homeProjecao').innerText = toBRL(saldo);
-            document.getElementById('homeMaiorCat').innerText = sortedCats[0] ? sortedCats[0][0] : "---";
-
-            // Painel Lateral
-            document.getElementById('homeTotalReceitas').innerText = toBRL(rec);
-            document.getElementById('homeTotalDespesas').innerText = toBRL(desp);
-            const saldoEl = document.getElementById('homeTotalSaldo');
-            saldoEl.innerText = toBRL(saldo);
-            saldoEl.className = saldo >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
-
-            // Saúde Financeira
-            const emoji = document.getElementById('saudeEmoji'), status = document.getElementById('saudeStatus'), feedback = document.getElementById('saudeFeedback');
-            if (saldo < 0) { emoji.innerText="😟"; status.innerText="Crítico"; feedback.innerText="As suas despesas superaram as receitas. Verifique a sua categoria mais alta."; }
-            else if (rec > 0 && saldo < rec * 0.1) { emoji.innerText="😐"; status.innerText="Atenção"; feedback.innerText="Está a poupar pouco. Tente reduzir gastos em categorias não essenciais."; }
-            else if (rec > 0) { emoji.innerText="😊"; status.innerText="Saudável"; feedback.innerText="Excelente gestão! O seu saldo está positivo e dentro de uma margem segura."; }
-            else { emoji.innerText="😶"; status.innerText="Sem Dados"; feedback.innerText="Inicie os lançamentos do mês para ver a análise."; }
-
-            // Gráfico
-            if(chartHomeCatInstance) chartHomeCatInstance.destroy();
-            chartHomeCatInstance = new Chart(document.getElementById('homeChartCategorias'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(catTotals), datasets: [{ data: Object.values(catTotals), backgroundColor: ['#4361ee','#4cc9f0','#05cd99','#ee5d50','#ffb800'] }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
+                    </div>
+                    <div class="text-end">
+                        <b class="${c.tipo === 'Receita' ? 'text-success' : 'text-danger'}">${toBRL(c.valor)}</b>
+                        <div class="mt-1">
+                            <button class="btn btn-sm text-primary p-0 me-2" onclick="prepareEdit('${c.id}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm text-danger p-0" onclick="deleteConta('${c.id}')"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>`;
+                list.appendChild(item);
             });
-        }
+        };
 
-        // Funções Auxiliares
-        function toBRL(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
-        
-        function populateCategories() {
-            const t = document.querySelector('input[name="tipo"]:checked').value;
-            const s = document.getElementById('categoria'); s.innerHTML = '';
-            Object.keys(CATEGORIES[t]).forEach(c => s.add(new Option(c, c)));
-            populateSubCategories();
-        }
+        const renderRelatorios = () => {
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === currentFilterDate.getMonth() && d.getFullYear() === currentFilterDate.getFullYear();
+            });
 
-        function populateSubCategories() {
-            const t = document.querySelector('input[name="tipo"]:checked').value, c = document.getElementById('categoria').value;
-            const s = document.getElementById('subCategoria'); s.innerHTML = '';
-            CATEGORIES[t][c].forEach(sub => s.add(new Option(sub, sub)));
-        }
+            const despesas = filtered.filter(c => c.tipo === 'Despesa');
+            const totalDesp = despesas.reduce((a,b) => a+b.valor, 0);
+            
+            // 1. Análise Rápida
+            const diasNoMes = new Date(currentFilterDate.getFullYear(), currentFilterDate.getMonth() + 1, 0).getDate();
+            document.getElementById('mediaGastos').innerText = toBRL(totalDesp / diasNoMes);
+            document.getElementById('totalLancamentos').innerText = filtered.length;
 
-        function initFormatters() {
-            document.getElementById('valor').oninput = (e) => {
-                let v = e.target.value.replace(/\D/g, '');
-                v = (v / 100).toFixed(2).replace(".", ",");
-                e.target.value = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-            };
-        }
+            const catData = {};
+            despesas.forEach(d => catData[d.categoria] = (catData[d.categoria] || 0) + d.valor);
+            const maiorCat = Object.entries(catData).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('maiorCategoria').innerText = maiorCat ? maiorCat[0] : '-';
 
-        document.getElementById('formAdicionarConta').onsubmit = (e) => {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('valor').value.replace(/\./g, '').replace(',', '.'));
-            contas.push({ id: Date.now(), tipo: document.querySelector('input[name="tipo"]:checked').value, 
-            categoria: document.getElementById('categoria').value, subCategoria: document.getElementById('subCategoria').value, 
-            valor: val, data: new Date(currentFilterDate).toISOString() });
-            localStorage.setItem('contas_v3', JSON.stringify(contas));
-            document.getElementById('formAdicionarConta').reset();
+            // 2. Gráficos
+            if (chartInstances.cat) chartInstances.cat.destroy();
+            chartInstances.cat = new Chart(document.getElementById('chartCategorias'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: ['#4361ee','#4cc9f0','#05cd99','#ee5d50','#ff9f43','#7367f0'] }] },
+                options: { maintainAspectRatio: false, plugins: { title: { display: true, text: 'Distribuição de Gastos' } } }
+            });
+
+            if (chartInstances.comp) chartInstances.comp.destroy();
+            chartInstances.comp = new Chart(document.getElementById('chartComparativo'), {
+                type: 'bar',
+                data: { labels: ['Fluxo de Caixa'], datasets: [
+                    { label: 'Receitas', data: [filtered.filter(c=>c.tipo==='Receita').reduce((a,b)=>a+b.valor,0)], backgroundColor: '#05cd99' },
+                    { label: 'Despesas', data: [totalDesp], backgroundColor: '#ee5d50' }
+                ]},
+                options: { maintainAspectRatio: false }
+            });
+
+            // 3. Somatórios por Subcategoria
+            const somatorioBody = document.getElementById('tabelaSomatorios');
+            somatorioBody.innerHTML = '';
+            
+            const agrupado = {};
+            filtered.forEach(item => {
+                const key = `${item.tipo}|${item.categoria}|${item.subCategoria}`;
+                agrupado[key] = (agrupado[key] || 0) + item.valor;
+            });
+
+            Object.entries(agrupado).sort().forEach(([key, val]) => {
+                const [tipo, cat, sub] = key.split('|');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge ${tipo === 'Receita' ? 'bg-success' : 'bg-danger'} me-2 opacity-75">${tipo}</span> ${cat}</td>
+                    <td>${sub}</td>
+                    <td class="text-end fw-bold ${tipo === 'Receita' ? 'text-success' : 'text-danger'}">${toBRL(val)}</td>
+                `;
+                somatorioBody.appendChild(tr);
+            });
+        };
+
+        window.changeFilterMonth = (offset) => {
+            currentFilterDate.setMonth(currentFilterDate.getMonth() + offset);
+            window.renderAll();
+        };
+
+        window.filterList = (type) => {
+            listFilter = type;
             renderAll();
         };
 
-        function renderLista(data) {
-            const l = document.getElementById('listaContas'); l.innerHTML = data.length ? '' : '<p class="text-center py-4">Sem dados.</p>';
-            data.forEach(c => {
-                l.innerHTML += `<div class="list-group-item d-flex justify-content-between">
-                    <div><b>${c.subCategoria}</b><br><small>${c.categoria}</small></div>
-                    <b class="${c.tipo==='Receita'?'text-success':'text-danger'}">${toBRL(c.valor)}</b>
-                </div>`;
+        window.exportarParaPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const docPdf = new jsPDF();
+            docPdf.text("Relatório de Lançamentos - ContaFácil", 14, 20);
+            const filtered = contas.filter(c => {
+                const d = new Date(c.data);
+                return d.getMonth() === currentFilterDate.getMonth() && d.getFullYear() === currentFilterDate.getFullYear();
             });
-        }
+            const rows = filtered.map(c => [new Date(c.data).toLocaleDateString(), c.tipo, c.categoria, c.subCategoria, toBRL(c.valor)]);
+            docPdf.autoTable({ startY: 30, head: [['Data', 'Tipo', 'Categoria', 'Sub', 'Valor']], body: rows });
+            docPdf.save(`Relatorio_${document.getElementById('currentMonthLabel').innerText}.pdf`);
+        };
 
-        function renderResumo(f) {
-            const r = f.filter(c=>c.tipo==='Receita').reduce((a,b)=>a+b.valor,0), d = f.filter(c=>c.tipo==='Despesa').reduce((a,b)=>a+b.valor,0);
-            document.getElementById('resumoGeral').innerHTML = `
-                <div class="col-4"><div class="summary-card summary-neutral"><small>RECEITAS</small><h3>${toBRL(r)}</h3></div></div>
-                <div class="col-4"><div class="summary-card summary-negative"><small>DESPESAS</small><h3>${toBRL(d)}</h3></div></div>
-                <div class="col-4"><div class="summary-card ${r-d>=0?'summary-positive':'summary-negative'}"><small>SALDO</small><h3>${toBRL(r-d)}</h3></div></div>`;
-        }
-
-        function changeFilterMonth(o) { currentFilterDate.setMonth(currentFilterDate.getMonth()+o); renderAll(); }
+        initAuth();
+        window.populateCategories();
+        window.renderAll();
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
